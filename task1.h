@@ -7,7 +7,7 @@ class Task1 : public Exercise<T>
 {
 public:
     // Создает объект задания Task1.
-    Task1(const Matrix<T>& matrix, Generator<T>* generator);
+    Task1(const Matrix<T>& matrix,const Generator<T>* generator);
 
     // Заменяет максимальный элемент каждой строки нулем.
     void solve() override;
@@ -16,7 +16,7 @@ public:
 
 // Создает объект задания Task1.
 template <typename T>
-Task1<T>::Task1(const Matrix<T>& matrix, Generator<T>* generator)
+Task1<T>::Task1(const Matrix<T>& matrix,const Generator<T>* generator)
     : Exercise<T>(matrix, generator)
 {
 }
