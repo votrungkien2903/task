@@ -1,12 +1,14 @@
-﻿
+
 #pragma once
 
+#include <cstddef>
 #include <vector>
 #include <string>
 #include <sstream>
 #include <stdexcept>
 #include <ostream>
 #include <istream>
+#include <utility>
 
 template <typename T>
 class Matrix
@@ -15,24 +17,24 @@ private:
     // Двумерный массив, хранящий элементы матрицы.
     std::vector<std::vector<T>> data;
 
+    // Количество строк матрицы.
+    size_t rows = 0;
+
+    // Количество столбцов матрицы.
+    size_t cols = 0;
+
 public:
-    // Конструктор по умолчанию. Создает пустую матрицу.
+    // Конструктор по умолчанию.
     Matrix();
 
     // Конструктор, создающий матрицу заданного размера.
-    Matrix(size_t rows, size_t cols);
-
-    // Конструктор, создающий матрицу заданного размера и заполняющий ее значением.
-    Matrix(size_t rows, size_t cols, const T& value);
+    Matrix(const size_t rows, const size_t cols);
 
     // Конструктор копирования.
     Matrix(const Matrix& other);
 
     // Конструктор перемещения.
     Matrix(Matrix&& other) noexcept;
-
-    // Деструктор матрицы.
-    ~Matrix();
 
     // Оператор копирующего присваивания.
     Matrix& operator=(const Matrix& other);
@@ -46,56 +48,45 @@ public:
     // Возвращает количество столбцов матрицы.
     size_t getCols() const;
 
-    // Изменяет размер матрицы.
-    void resize(size_t rows, size_t cols);
-
-    // Изменяет размер матрицы с заполнением заданным значением.
-    void resize(size_t rows, size_t cols, const T& value);
-
     // Возвращает строку матрицы.
-    std::vector<T>& operator[](size_t index);
+    std::vector<T>& operator[](const size_t index);
 
     // Возвращает константную строку матрицы.
-    const std::vector<T>& operator[](size_t index) const;
+    const std::vector<T>& operator[](const size_t index) const;
 
     // Возвращает строковое представление матрицы.
     std::string toString() const;
 
-    // Вставляет строку перед указанным индексом.
-    void insertRow(size_t index, const std::vector<T>& row);
-
-    // Удаляет строку по указанному индексу.
-    void removeRow(size_t index);
-
     // Оператор вывода матрицы в поток.
     template <typename U>
-    friend std::ostream& operator<<(std::ostream& os, const Matrix<U>& matrix);
+    friend std::ostream& operator<<(
+        std::ostream& os,
+        const Matrix<U>& matrix
+        );
 
     // Оператор ввода матрицы из потока.
     template <typename U>
-    friend std::istream& operator>>(std::istream& is, Matrix<U>& matrix);
+    friend std::istream& operator>>(
+        std::istream& is,
+        Matrix<U>& matrix
+        );
 };
 
 
-// Конструктор по умолчанию. Создает пустую матрицу.
+// Конструктор по умолчанию.
 template <typename T>
 Matrix<T>::Matrix()
+    : rows(0), cols(0)
 {
 }
 
 
 // Конструктор, создающий матрицу заданного размера.
 template <typename T>
-Matrix<T>::Matrix(size_t rows, size_t cols)
-    : data(rows, std::vector<T>(cols))
-{
-}
-
-
-// Конструктор, создающий матрицу заданного размера и заполняющий ее значением.
-template <typename T>
-Matrix<T>::Matrix(size_t rows, size_t cols, const T& value)
-    : data(rows, std::vector<T>(cols, value))
+Matrix<T>::Matrix(const size_t rows, const size_t cols)
+    : data(rows, std::vector<T>(cols)),
+    rows(rows),
+    cols(cols)
 {
 }
 
@@ -103,7 +94,9 @@ Matrix<T>::Matrix(size_t rows, size_t cols, const T& value)
 // Конструктор копирования.
 template <typename T>
 Matrix<T>::Matrix(const Matrix& other)
-    : data(other.data)
+    : data(other.data),
+    rows(other.rows),
+    cols(other.cols)
 {
 }
 
@@ -111,15 +104,12 @@ Matrix<T>::Matrix(const Matrix& other)
 // Конструктор перемещения.
 template <typename T>
 Matrix<T>::Matrix(Matrix&& other) noexcept
-    : data(std::move(other.data))
+    : data(std::move(other.data)),
+    rows(other.rows),
+    cols(other.cols)
 {
-}
-
-
-// Деструктор матрицы.
-template <typename T>
-Matrix<T>::~Matrix()
-{
+    other.rows = 0;
+    other.cols = 0;
 }
 
 
@@ -130,6 +120,8 @@ Matrix<T>& Matrix<T>::operator=(const Matrix& other)
     if (this != &other)
     {
         data = other.data;
+        rows = other.rows;
+        cols = other.cols;
     }
 
     return *this;
@@ -143,6 +135,11 @@ Matrix<T>& Matrix<T>::operator=(Matrix&& other) noexcept
     if (this != &other)
     {
         data = std::move(other.data);
+        rows = other.rows;
+        cols = other.cols;
+
+        other.rows = 0;
+        other.cols = 0;
     }
 
     return *this;
@@ -153,7 +150,7 @@ Matrix<T>& Matrix<T>::operator=(Matrix&& other) noexcept
 template <typename T>
 size_t Matrix<T>::getRows() const
 {
-    return data.size();
+    return rows;
 }
 
 
@@ -161,44 +158,13 @@ size_t Matrix<T>::getRows() const
 template <typename T>
 size_t Matrix<T>::getCols() const
 {
-    if (data.empty())
-    {
-        return 0;
-    }
-
-    return data[0].size();
-}
-
-
-// Изменяет размер матрицы.
-template <typename T>
-void Matrix<T>::resize(size_t rows, size_t cols)
-{
-    data.resize(rows);
-
-    for (auto& row : data)
-    {
-        row.resize(cols);
-    }
-}
-
-
-// Изменяет размер матрицы с заполнением заданным значением.
-template <typename T>
-void Matrix<T>::resize(size_t rows, size_t cols, const T& value)
-{
-    data.resize(rows);
-
-    for (auto& row : data)
-    {
-        row.resize(cols, value);
-    }
+    return cols;
 }
 
 
 // Возвращает строку матрицы.
 template <typename T>
-std::vector<T>& Matrix<T>::operator[](size_t index)
+std::vector<T>& Matrix<T>::operator[](const size_t index)
 {
     return data.at(index);
 }
@@ -206,7 +172,7 @@ std::vector<T>& Matrix<T>::operator[](size_t index)
 
 // Возвращает константную строку матрицы.
 template <typename T>
-const std::vector<T>& Matrix<T>::operator[](size_t index) const
+const std::vector<T>& Matrix<T>::operator[](const size_t index) const
 {
     return data.at(index);
 }
@@ -218,19 +184,19 @@ std::string Matrix<T>::toString() const
 {
     std::ostringstream output;
 
-    for (size_t i = 0; i < getRows(); ++i)
+    for (size_t i = 0; i < rows; ++i)
     {
-        for (size_t j = 0; j < getCols(); ++j)
+        for (size_t j = 0; j < cols; ++j)
         {
             output << data[i][j];
 
-            if (j + 1 < getCols())
+            if (j + 1 < cols)
             {
                 output << ' ';
             }
         }
 
-        if (i + 1 < getRows())
+        if (i + 1 < rows)
         {
             output << '\n';
         }
@@ -240,40 +206,12 @@ std::string Matrix<T>::toString() const
 }
 
 
-// Вставляет строку перед указанным индексом.
-template <typename T>
-void Matrix<T>::insertRow(size_t index, const std::vector<T>& row)
-{
-    if (index > getRows())
-    {
-        throw std::out_of_range("Invalid row index");
-    }
-
-    if (getCols() != row.size())
-    {
-        throw std::invalid_argument("Invalid row size");
-    }
-
-    data.insert(data.begin() + index, row);
-}
-
-
-// Удаляет строку по указанному индексу.
-template <typename T>
-void Matrix<T>::removeRow(size_t index)
-{
-    if (index >= getRows())
-    {
-        throw std::out_of_range("Invalid row index");
-    }
-
-    data.erase(data.begin() + index);
-}
-
-
 // Оператор вывода матрицы в поток.
 template <typename U>
-std::ostream& operator<<(std::ostream& os, const Matrix<U>& matrix)
+std::ostream& operator<<(
+    std::ostream& os,
+    const Matrix<U>& matrix
+    )
 {
     os << matrix.toString();
     return os;
@@ -282,11 +220,14 @@ std::ostream& operator<<(std::ostream& os, const Matrix<U>& matrix)
 
 // Оператор ввода матрицы из потока.
 template <typename U>
-std::istream& operator>>(std::istream& is, Matrix<U>& matrix)
+std::istream& operator>>(
+    std::istream& is,
+    Matrix<U>& matrix
+    )
 {
-    for (size_t i = 0; i < matrix.getRows(); ++i)
+    for (size_t i = 0; i < matrix.rows; ++i)
     {
-        for (size_t j = 0; j < matrix.getCols(); ++j)
+        for (size_t j = 0; j < matrix.cols; ++j)
         {
             is >> matrix.data[i][j];
         }
