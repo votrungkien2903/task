@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "matrix.h"
 #include "generator.h"
@@ -11,11 +11,11 @@ protected:
     Matrix<T> matrix;
 
     // Генератор, используемый для заполнения матрицы.
-    Generator<T>* generator;
+    const Generator<T>* generator; // <-- changed to const
 
 public:
     // Создает упражнение с заданной матрицей и генератором.
-    Exercise(const Matrix<T>& matrix, Generator<T>* generator);
+    Exercise(const Matrix<T>& matrix, const Generator<T>* generator);
 
     // Виртуальный деструктор базового класса Exercise.
     virtual ~Exercise() = default;
@@ -30,7 +30,7 @@ public:
 
 // Создает упражнение с заданной матрицей и генератором.
 template <typename T>
-Exercise<T>::Exercise(const Matrix<T>& matrix, Generator<T>* generator)
+Exercise<T>::Exercise(const Matrix<T>& matrix, const Generator<T>* generator)
     : matrix(matrix), generator(generator)
 {
 }
