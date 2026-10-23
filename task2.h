@@ -7,7 +7,7 @@ class Task2 : public Exercise<T>
 {
 public:
     // Создает объект задания Task2.
-    Task2(const Matrix<T>& matrix, Generator<T>* generator);
+    Task2(const Matrix<T>& matrix,const Generator<T>* generator);
 
     // Вставляет нулевую строку перед строками,
     // первый элемент которых делится на 3.
@@ -17,7 +17,7 @@ public:
 
 // Создает объект задания Task2.
 template <typename T>
-Task2<T>::Task2(const Matrix<T>& matrix, Generator<T>* generator)
+Task2<T>::Task2(const Matrix<T>& matrix,const Generator<T>* generator)
     : exercise<T>(matrix, generator)
 {
 }
