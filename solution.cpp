@@ -34,7 +34,7 @@ int main()
     task2.solve();
     std::cout << "Результат Task2:\n" << task2.getMatrix() << "\n\n";
 
-    // Дополнительно демонстрируем заполнение случайными числами.
+    // Демонстрируем заполнение матрицы случайными числами.
     Matrix<int> randomMatrix(rows, cols);
     RandomGenerator randomGenerator(1, 20);
     randomGenerator.generate(randomMatrix);
