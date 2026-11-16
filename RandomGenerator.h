@@ -1,9 +1,10 @@
-﻿#pragma once
+#pragma once
 
-#include "generator.h"
+#include "matrix.h"
 #include <random>
+#include <stdexcept>
 
-class RandomGenerator : public Generator<int>
+class RandomGenerator
 {
 private:
     // Минимальное случайное значение.
@@ -14,45 +15,36 @@ private:
 
 public:
     // Создает генератор случайных чисел.
-    RandomGenerator(int minValue, int maxValue);
+    RandomGenerator(const int minValue, const int maxValue);
 
     // Заполняет матрицу случайными числами.
-    void generate(Matrix<int>& matrix) override;
+    void generate(Matrix<int>& matrix) const;
 };
 
 
 // Создает генератор случайных чисел.
-inline RandomGenerator::RandomGenerator(
-    int minValue,
-    int maxValue
-)
-    : minValue(minValue),
-    maxValue(maxValue)
+inline RandomGenerator::RandomGenerator(const int minValue, const int maxValue)
+    : minValue(minValue), maxValue(maxValue)
 {
+    if (minValue > maxValue)
+    {
+        throw std::invalid_argument("Минимальное значение больше максимального");
+    }
 }
 
 
 // Заполняет матрицу случайными числами.
-inline void RandomGenerator::generate(Matrix<int>& matrix)
+inline void RandomGenerator::generate(Matrix<int>& matrix) const
 {
-    // Создаем генератор случайных чисел.
-    std::random_device rd;
-    std::mt19937 generator(rd());
+    std::random_device device;
+    std::mt19937 engine(device());
+    std::uniform_int_distribution<int> distribution(minValue, maxValue);
 
-    // Задаем диапазон случайных чисел.
-    std::uniform_int_distribution<int> distribution(
-        minValue,
-        maxValue
-    );
-
-    // Перебираем все строки матрицы.
-    for (size_t i = 0; i < matrix.getRows(); ++i)
+    for (std::size_t i = 0; i < matrix.getRows(); ++i)
     {
-        // Перебираем все элементы строки.
-        for (size_t j = 0; j < matrix.getCols(); ++j)
+        for (std::size_t j = 0; j < matrix.getCols(); ++j)
         {
-            // Записываем случайное число.
-            matrix[i][j] = distribution(generator);
+            matrix[i][j] = distribution(engine);
         }
     }
 }
