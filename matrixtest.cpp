@@ -6,6 +6,7 @@
 #include "task2.h"
 #include "RandomGenerator.h"
 #include "ManualGenerator.h"
+#include "constant.h"
 
 #include <sstream>
 #include <string>
@@ -243,6 +244,20 @@ namespace MatrixTests
             Assert::AreEqual(2, task.getMatrix()[0][2]);
         }
 
+        // Проверяет, что Task1 не изменяет исходную матрицу.
+        TEST_METHOD(Task1PreservesSourceMatrixTest)
+        {
+            Matrix<int> matrix(1, 2);
+            matrix[0][0] = 2;
+            matrix[0][1] = 9;
+
+            Task1<int> task(matrix);
+            task.solve();
+
+            Assert::AreEqual(9, matrix[0][1]);
+            Assert::AreEqual(0, task.getMatrix()[0][1]);
+        }
+
         // Проверяет вставку нулевых строк перед подходящими строками.
         TEST_METHOD(Task2Test)
         {
@@ -338,7 +353,7 @@ namespace MatrixTests
             Assert::AreEqual(4, matrix[1][1]);
         }
 
-        // Проверяет, что ManualGenerator сообщает об ошибке неполного ввода.
+        // Проверяет, что ManualGenerator не меняет матрицу при ошибке ввода.
         TEST_METHOD(ManualGeneratorInputFailureTest)
         {
             Matrix<int> matrix(1, 2);
@@ -351,6 +366,22 @@ namespace MatrixTests
             Assert::IsFalse(generator.generate(matrix, input));
             Assert::AreEqual(7, matrix[0][0]);
             Assert::AreEqual(8, matrix[0][1]);
+        }
+
+        // Проверяет заполнение матрицы постоянным значением.
+        TEST_METHOD(ConstantGeneratorTest)
+        {
+            Matrix<int> matrix(2, 2);
+            Constant<int> generator(7);
+            generator.generate(matrix);
+
+            for (std::size_t i = 0; i < matrix.getRows(); ++i)
+            {
+                for (std::size_t j = 0; j < matrix.getCols(); ++j)
+                {
+                    Assert::AreEqual(7, matrix[i][j]);
+                }
+            }
         }
     };
 }
