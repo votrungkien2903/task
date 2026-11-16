@@ -1,5 +1,6 @@
-﻿#pragma once
+#pragma once
 
+#include <vector>
 #include "Exercise.h"
 
 template <typename T>
@@ -7,7 +8,7 @@ class Task2 : public Exercise<T>
 {
 public:
     // Создает объект задания Task2.
-    Task2(const Matrix<T>& matrix,const Generator<T>* generator);
+    explicit Task2(const Matrix<T>& matrix);
 
     // Вставляет нулевую строку перед строками,
     // первый элемент которых делится на 3.
@@ -17,8 +18,8 @@ public:
 
 // Создает объект задания Task2.
 template <typename T>
-Task2<T>::Task2(const Matrix<T>& matrix,const Generator<T>* generator)
-    : exercise<T>(matrix, generator)
+Task2<T>::Task2(const Matrix<T>& matrix)
+    : Exercise<T>(matrix)
 {
 }
 
@@ -28,38 +29,40 @@ Task2<T>::Task2(const Matrix<T>& matrix,const Generator<T>* generator)
 template <typename T>
 void Task2<T>::solve()
 {
-    // Если матрица пустая, выполнять нечего.
-    if (this->matrix.getRows() == 0 || this->matrix.getCols() == 0)
+    const std::size_t originalRows = this->matrix.getRows();
+    const std::size_t cols = this->matrix.getCols();
+
+    // Если в матрице нет строк или столбцов, вставлять нечего.
+    if (originalRows == 0 || cols == 0)
     {
         return;
     }
 
-    // Сохраняем исходное количество строк,
-    // чтобы не проверять добавленные нулевые строки повторно.
-    const size_t originalRows = this->matrix.getRows();
+    // Формируем новый набор строк, не изменяя интерфейс класса Matrix.
+    std::vector<std::vector<T>> resultRows;
+    resultRows.reserve(originalRows * 2);
 
-    // Количество уже добавленных строк.
-    size_t insertedRows = 0;
-
-    for (size_t i = 0; i < originalRows; ++i)
+    for (std::size_t i = 0; i < originalRows; ++i)
     {
-        // Получаем индекс текущей строки с учетом ранее вставленных строк.
-        size_t currentIndex = i + insertedRows;
-
-        // Проверяем первый элемент строки.
-        if (this->matrix[currentIndex][0] % 3 == 0)
+        // Добавляем нулевую строку перед подходящей исходной строкой.
+        if (this->matrix[i][0] % 3 == 0)
         {
-            // Создаем строку, состоящую из нулей.
-            std::vector<T> zeroRow(
-                this->matrix.getCols(),
-                T{}
-            );
+            resultRows.emplace_back(cols, T{});
+        }
 
-            // Вставляем нулевую строку перед текущей строкой.
-            this->matrix.insertRow(currentIndex, zeroRow);
+        resultRows.push_back(this->matrix[i]);
+    }
 
-            // Увеличиваем количество добавленных строк.
-            ++insertedRows;
+    // Создаем матрицу нужного размера и переносим в нее строки.
+    Matrix<T> result(resultRows.size(), cols);
+
+    for (std::size_t i = 0; i < resultRows.size(); ++i)
+    {
+        for (std::size_t j = 0; j < cols; ++j)
+        {
+            result[i][j] = resultRows[i][j];
         }
     }
+
+    this->matrix = std::move(result);
 }
