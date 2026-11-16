@@ -1,10 +1,11 @@
 #pragma once
 
-#include "matrix.h"
+#include "generator.h"
+
 #include <random>
 #include <stdexcept>
 
-class RandomGenerator
+class RandomGenerator : public Generator<int>
 {
 private:
     // Минимальное случайное значение.
@@ -18,7 +19,7 @@ public:
     RandomGenerator(const int minValue, const int maxValue);
 
     // Заполняет матрицу случайными числами.
-    void generate(Matrix<int>& matrix) const;
+    void generate(Matrix<int>& matrix) override;
 };
 
 
@@ -34,7 +35,7 @@ inline RandomGenerator::RandomGenerator(const int minValue, const int maxValue)
 
 
 // Заполняет матрицу случайными числами.
-inline void RandomGenerator::generate(Matrix<int>& matrix) const
+inline void RandomGenerator::generate(Matrix<int>& matrix)
 {
     std::random_device device;
     std::mt19937 engine(device());
