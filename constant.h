@@ -1,9 +1,9 @@
-﻿#pragma once
+#pragma once
 
 #include "generator.h"
 
 template <typename T>
-class Constant : public generator<T>
+class Constant : public Generator<T>
 {
 private:
     // Значение, которым будет заполнена матрица.
@@ -30,9 +30,9 @@ Constant<T>::Constant(const T& value)
 template <typename T>
 void Constant<T>::generate(Matrix<T>& matrix)
 {
-    for (size_t i = 0; i < matrix.getRows(); ++i)
+    for (std::size_t i = 0; i < matrix.getRows(); ++i)
     {
-        for (size_t j = 0; j < matrix.getCols(); ++j)
+        for (std::size_t j = 0; j < matrix.getCols(); ++j)
         {
             matrix[i][j] = value;
         }
