@@ -1,60 +1,44 @@
-﻿#include <iostream>
+#include <iostream>
 
 #include "matrix.h"
-#include "randomgenerator.h"
-#include "zerogenerator.h"
-#include "constant.h"
+#include "ManualGenerator.h"
+#include "RandomGenerator.h"
 #include "task1.h"
 #include "task2.h"
 
 int main()
 {
-    // Создаем матрицу 4x4.
-    Matrix<int> matrix(4, 4);
+    const std::size_t rows = 4;
+    const std::size_t cols = 4;
 
-    // Создаем генератор случайных чисел от 1 до 20.
-    RandomGenerator randomGenerator(1, 20);
+    // Создаем матрицу и заполняем ее значениями, введенными пользователем.
+    Matrix<int> matrix(rows, cols);
+    ManualGenerator<int> manualGenerator;
 
-    // Заполняем матрицу случайными числами.
-    randomGenerator.generate(matrix);
+    std::cout << "Введите элементы матрицы " << rows << "x" << cols << ":\n";
+    if (!manualGenerator.generate(matrix, std::cin))
+    {
+        std::cerr << "Ошибка ввода элементов матрицы.\n";
+        return 1;
+    }
 
-    // Выводим исходную матрицу.
-    std::cout << "Исходная матрица:" << std::endl;
-    std::cout << matrix << std::endl << std::endl;
+    std::cout << "\nИсходная матрица:\n" << matrix << "\n\n";
 
-
-    // Создаем объект первого задания.
-    Task1<int> task1(matrix, &randomGenerator);
-
-    // Выполняем первое задание.
+    // Выполняем первое задание над копией исходной матрицы.
+    Task1<int> task1(matrix);
     task1.solve();
+    std::cout << "Результат Task1:\n" << task1.getMatrix() << "\n\n";
 
-    // Выводим результат первого задания.
-    std::cout << "Результат Task1:" << std::endl;
-    std::cout << task1.getMatrix() << std::endl << std::endl;
-
-
-    // Создаем новую матрицу для второго задания.
-    Matrix<int> matrix2(4, 4);
-
-    // Заполняем матрицу случайными числами.
-    randomGenerator.generate(matrix2);
-
-    // Выводим исходную матрицу второго задания.
-    std::cout << "Исходная матрица для Task2:" << std::endl;
-    std::cout << matrix2 << std::endl << std::endl;
-
-
-    // Создаем объект второго задания.
-    Task2<int> task2(matrix2, &randomGenerator);
-
-    // Выполняем второе задание.
+    // Выполняем второе задание над другой копией исходной матрицы.
+    Task2<int> task2(matrix);
     task2.solve();
+    std::cout << "Результат Task2:\n" << task2.getMatrix() << "\n\n";
 
-    // Выводим результат второго задания.
-    std::cout << "Результат Task2:" << std::endl;
-    std::cout << task2.getMatrix() << std::endl << std::endl;
-
+    // Дополнительно демонстрируем заполнение случайными числами.
+    Matrix<int> randomMatrix(rows, cols);
+    RandomGenerator randomGenerator(1, 20);
+    randomGenerator.generate(randomMatrix);
+    std::cout << "Матрица со случайными числами:\n" << randomMatrix << '\n';
 
     return 0;
 }
