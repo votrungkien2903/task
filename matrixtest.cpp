@@ -1,12 +1,11 @@
-
 #include "CppUnitTest.h"
 
-#include "../solution/Matrix.h"
-#include "../solution/task1.h"
-#include "../solution/task2.h"
-#include "../solution/RandomGenerator.h"
-#include "../solution/constant.h"
-#include "../solution/zerogenerator.h"
+#include "matrix.h"
+#include "Exercise.h"
+#include "task1.h"
+#include "task2.h"
+#include "RandomGenerator.h"
+#include "ManualGenerator.h"
 
 #include <sstream>
 #include <string>
@@ -20,168 +19,130 @@ namespace MatrixTests
     TEST_CLASS(MatrixTests)
     {
     public:
-
-        // Проверяет конструктор матрицы и доступ к ее элементам.
+        // Проверяет создание матрицы заданного размера.
         TEST_METHOD(MatrixConstructorTest)
         {
             Matrix<int> matrix(2, 3);
 
-            Assert::AreEqual(static_cast<size_t>(2), matrix.getRows());
-            Assert::AreEqual(static_cast<size_t>(3), matrix.getCols());
+            Assert::AreEqual(static_cast<std::size_t>(2), matrix.getRows());
+            Assert::AreEqual(static_cast<std::size_t>(3), matrix.getCols());
 
-            matrix[0][0] = 1;
-            matrix[0][1] = 2;
-            matrix[0][2] = 3;
-            matrix[1][0] = 4;
-            matrix[1][1] = 5;
-            matrix[1][2] = 6;
-
-            Assert::AreEqual(1, matrix[0][0]);
-            Assert::AreEqual(6, matrix[1][2]);
+            for (std::size_t i = 0; i < matrix.getRows(); ++i)
+            {
+                for (std::size_t j = 0; j < matrix.getCols(); ++j)
+                {
+                    Assert::AreEqual(0, matrix[i][j]);
+                }
+            }
         }
 
-        // Проверяет конструктор матрицы без параметров.
+        // Проверяет создание пустой матрицы.
         TEST_METHOD(MatrixDefaultConstructorTest)
         {
             Matrix<int> matrix;
-
-            Assert::AreEqual(static_cast<size_t>(0), matrix.getRows());
-            Assert::AreEqual(static_cast<size_t>(0), matrix.getCols());
+            Assert::AreEqual(static_cast<std::size_t>(0), matrix.getRows());
+            Assert::AreEqual(static_cast<std::size_t>(0), matrix.getCols());
         }
 
-        // Проверяет матрицу с нулевым количеством строк.
+        // Проверяет матрицу без строк.
         TEST_METHOD(MatrixZeroRowsTest)
         {
             Matrix<int> matrix(0, 3);
-
-            Assert::AreEqual(static_cast<size_t>(0), matrix.getRows());
-            Assert::AreEqual(static_cast<size_t>(3), matrix.getCols());
+            Assert::AreEqual(static_cast<std::size_t>(0), matrix.getRows());
+            Assert::AreEqual(static_cast<std::size_t>(3), matrix.getCols());
         }
 
-        // Проверяет матрицу с нулевым количеством столбцов.
+        // Проверяет матрицу без столбцов.
         TEST_METHOD(MatrixZeroColsTest)
         {
             Matrix<int> matrix(3, 0);
-
-            Assert::AreEqual(static_cast<size_t>(3), matrix.getRows());
-            Assert::AreEqual(static_cast<size_t>(0), matrix.getCols());
+            Assert::AreEqual(static_cast<std::size_t>(3), matrix.getRows());
+            Assert::AreEqual(static_cast<std::size_t>(0), matrix.getCols());
         }
 
         // Проверяет конструктор копирования.
         TEST_METHOD(MatrixCopyConstructorTest)
         {
-            Matrix<int> original(2, 2);
-            original[0][0] = 1;
-            original[0][1] = 2;
-            original[1][0] = 3;
-            original[1][1] = 4;
+            Matrix<int> original(1, 2);
+            original[0][0] = 4;
+            original[0][1] = 8;
 
             Matrix<int> copy(original);
+            Assert::AreEqual(4, copy[0][0]);
+            Assert::AreEqual(8, copy[0][1]);
 
-            Assert::AreEqual(static_cast<size_t>(2), copy.getRows());
-            Assert::AreEqual(static_cast<size_t>(2), copy.getCols());
-            Assert::AreEqual(1, copy[0][0]);
-            Assert::AreEqual(4, copy[1][1]);
-
-            // Изменение копии не должно менять оригинал.
             copy[0][0] = 100;
-            Assert::AreEqual(1, original[0][0]);
+            Assert::AreEqual(4, original[0][0]);
         }
 
         // Проверяет конструктор перемещения.
         TEST_METHOD(MatrixMoveConstructorTest)
         {
-            Matrix<int> original(2, 2);
-            original[0][0] = 10;
-            original[1][1] = 20;
+            Matrix<int> original(1, 1);
+            original[0][0] = 12;
 
             Matrix<int> moved(std::move(original));
-
-            Assert::AreEqual(static_cast<size_t>(2), moved.getRows());
-            Assert::AreEqual(static_cast<size_t>(2), moved.getCols());
-            Assert::AreEqual(10, moved[0][0]);
-            Assert::AreEqual(20, moved[1][1]);
-
-            Assert::AreEqual(static_cast<size_t>(0), original.getRows());
-            Assert::AreEqual(static_cast<size_t>(0), original.getCols());
+            Assert::AreEqual(12, moved[0][0]);
+            Assert::AreEqual(static_cast<std::size_t>(0), original.getRows());
+            Assert::AreEqual(static_cast<std::size_t>(0), original.getCols());
         }
 
-        // Проверяет оператор присваивания копированием.
+        // Проверяет копирующее присваивание.
         TEST_METHOD(MatrixCopyAssignmentTest)
         {
-            Matrix<int> original(2, 2);
-            original[0][0] = 1;
-            original[1][1] = 9;
+            Matrix<int> original(1, 1);
+            original[0][0] = 5;
 
-            Matrix<int> target(1, 1);
+            Matrix<int> target(2, 2);
             target = original;
 
-            Assert::AreEqual(static_cast<size_t>(2), target.getRows());
-            Assert::AreEqual(static_cast<size_t>(2), target.getCols());
-            Assert::AreEqual(1, target[0][0]);
-            Assert::AreEqual(9, target[1][1]);
-
-            target[0][0] = 50;
-            Assert::AreEqual(1, original[0][0]);
+            Assert::AreEqual(static_cast<std::size_t>(1), target.getRows());
+            Assert::AreEqual(static_cast<std::size_t>(1), target.getCols());
+            Assert::AreEqual(5, target[0][0]);
         }
 
-        // Проверяет оператор присваивания перемещением.
+        // Проверяет перемещающее присваивание.
         TEST_METHOD(MatrixMoveAssignmentTest)
         {
-            Matrix<int> original(2, 2);
-            original[0][0] = 7;
-            original[1][1] = 8;
+            Matrix<int> original(1, 1);
+            original[0][0] = 9;
 
-            Matrix<int> target(1, 1);
+            Matrix<int> target;
             target = std::move(original);
 
-            Assert::AreEqual(static_cast<size_t>(2), target.getRows());
-            Assert::AreEqual(static_cast<size_t>(2), target.getCols());
-            Assert::AreEqual(7, target[0][0]);
-            Assert::AreEqual(8, target[1][1]);
-
-            Assert::AreEqual(static_cast<size_t>(0), original.getRows());
-            Assert::AreEqual(static_cast<size_t>(0), original.getCols());
+            Assert::AreEqual(9, target[0][0]);
+            Assert::AreEqual(static_cast<std::size_t>(0), original.getRows());
         }
 
-        // Проверяет доступ к элементам через неконстантную матрицу.
-        TEST_METHOD(MatrixNonConstAccessTest)
+        // Проверяет самоприсваивание копированием.
+        TEST_METHOD(MatrixSelfAssignmentTest)
         {
-            Matrix<int> matrix(1, 2);
-            matrix[0][0] = 15;
-            matrix[0][1] = 25;
-
-            Assert::AreEqual(15, matrix[0][0]);
-            Assert::AreEqual(25, matrix[0][1]);
+            Matrix<int> matrix(1, 1);
+            matrix[0][0] = 7;
+            matrix = matrix;
+            Assert::AreEqual(7, matrix[0][0]);
         }
 
-        // Проверяет доступ к элементам через константную матрицу.
-        TEST_METHOD(MatrixConstAccessTest)
+        // Проверяет доступ к строкам и элементам.
+        TEST_METHOD(MatrixElementAccessTest)
         {
             Matrix<int> matrix(1, 2);
-            matrix[0][0] = 15;
-            matrix[0][1] = 25;
+            matrix[0][0] = 3;
+            matrix[0][1] = 6;
 
             const Matrix<int>& constMatrix = matrix;
-
-            Assert::AreEqual(15, constMatrix[0][0]);
-            Assert::AreEqual(25, constMatrix[0][1]);
+            Assert::AreEqual(3, constMatrix[0][0]);
+            Assert::AreEqual(6, constMatrix[0][1]);
         }
 
-        // Проверяет обработку выхода индекса строки за границы.
+        // Проверяет исключение при выходе индекса за границы.
         TEST_METHOD(MatrixOutOfRangeTest)
         {
-            Matrix<int> matrix(2, 2);
-
-            Assert::ExpectException<std::out_of_range>(
-                [&matrix]()
-                {
-                    matrix[2];
-                }
-            );
+            Matrix<int> matrix(1, 1);
+            Assert::ExpectException<std::out_of_range>([&matrix]() { matrix[1]; });
         }
 
-        // Проверяет преобразование матрицы в строку.
+        // Проверяет строковое представление матрицы.
         TEST_METHOD(MatrixToStringTest)
         {
             Matrix<int> matrix(2, 2);
@@ -190,29 +151,22 @@ namespace MatrixTests
             matrix[1][0] = 3;
             matrix[1][1] = 4;
 
-            std::string result = matrix.toString();
-
-            Assert::IsTrue(!result.empty());
-            Assert::IsTrue(result.find("1") != std::string::npos);
-            Assert::IsTrue(result.find("4") != std::string::npos);
+            Assert::AreEqual(std::string("1 2\n3 4"), matrix.toString());
         }
 
-        // Проверяет оператор вывода матрицы в поток.
+        // Проверяет вывод матрицы в поток.
         TEST_METHOD(MatrixOutputOperatorTest)
         {
             Matrix<int> matrix(1, 2);
-            matrix[0][0] = 11;
-            matrix[0][1] = 22;
+            matrix[0][0] = 10;
+            matrix[0][1] = 20;
 
             std::ostringstream output;
             output << matrix;
-
-            Assert::IsTrue(!output.str().empty());
-            Assert::IsTrue(output.str().find("11") != std::string::npos);
-            Assert::IsTrue(output.str().find("22") != std::string::npos);
+            Assert::AreEqual(std::string("10 20"), output.str());
         }
 
-        // Проверяет оператор ввода матрицы из потока.
+        // Проверяет ввод элементов матрицы из потока.
         TEST_METHOD(MatrixInputOperatorTest)
         {
             Matrix<int> matrix(2, 2);
@@ -220,38 +174,44 @@ namespace MatrixTests
 
             input >> matrix;
 
+            Assert::IsTrue(static_cast<bool>(input));
             Assert::AreEqual(1, matrix[0][0]);
-            Assert::AreEqual(2, matrix[0][1]);
-            Assert::AreEqual(3, matrix[1][0]);
             Assert::AreEqual(4, matrix[1][1]);
+        }
+
+        // Проверяет обработку недостаточного количества входных данных.
+        TEST_METHOD(MatrixInputFailureTest)
+        {
+            Matrix<int> matrix(1, 2);
+            std::istringstream input("5");
+
+            input >> matrix;
+            Assert::IsTrue(input.fail());
+            Assert::AreEqual(5, matrix[0][0]);
+        }
+
+        // Проверяет получение матрицы из базового класса Exercise.
+        TEST_METHOD(ExerciseGetMatrixTest)
+        {
+            Matrix<int> matrix(1, 1);
+            matrix[0][0] = 14;
+
+            Task1<int> task(matrix);
+            Assert::AreEqual(14, task.getMatrix()[0][0]);
         }
 
         // Проверяет замену максимального элемента каждой строки нулем.
         TEST_METHOD(Task1Test)
         {
-            Matrix<int> matrix(3, 3);
+            Matrix<int> matrix(2, 3);
+            matrix[0][0] = 1; matrix[0][1] = 5; matrix[0][2] = 3;
+            matrix[1][0] = 7; matrix[1][1] = 2; matrix[1][2] = 4;
 
-            matrix[0][0] = 1;
-            matrix[0][1] = 5;
-            matrix[0][2] = 3;
-
-            matrix[1][0] = 7;
-            matrix[1][1] = 2;
-            matrix[1][2] = 4;
-
-            matrix[2][0] = 9;
-            matrix[2][1] = 6;
-            matrix[2][2] = 8;
-
-            RandomGenerator generator(1, 10);
-            Task1<int> task(matrix, &generator);
-
+            Task1<int> task(matrix);
             task.solve();
 
             Assert::AreEqual(0, task.getMatrix()[0][1]);
             Assert::AreEqual(0, task.getMatrix()[1][0]);
-            Assert::AreEqual(0, task.getMatrix()[2][0]);
-
             Assert::AreEqual(1, task.getMatrix()[0][0]);
             Assert::AreEqual(2, task.getMatrix()[1][1]);
         }
@@ -260,200 +220,137 @@ namespace MatrixTests
         TEST_METHOD(Task1EmptyMatrixTest)
         {
             Matrix<int> matrix;
-            RandomGenerator generator(1, 10);
-            Task1<int> task(matrix, &generator);
-
+            Task1<int> task(matrix);
             task.solve();
 
-            Assert::AreEqual(
-                static_cast<size_t>(0),
-                task.getMatrix().getRows()
-            );
-            Assert::AreEqual(
-                static_cast<size_t>(0),
-                task.getMatrix().getCols()
-            );
+            Assert::AreEqual(static_cast<std::size_t>(0), task.getMatrix().getRows());
+            Assert::AreEqual(static_cast<std::size_t>(0), task.getMatrix().getCols());
         }
 
-        // Проверяет, что Task1 не изменяет элементы, не являющиеся максимумами.
-        TEST_METHOD(Task1PreservesOtherElementsTest)
+        // Проверяет Task1 при нескольких одинаковых максимумах.
+        TEST_METHOD(Task1EqualMaximumsTest)
         {
             Matrix<int> matrix(1, 3);
-            matrix[0][0] = 2;
+            matrix[0][0] = 8;
             matrix[0][1] = 8;
-            matrix[0][2] = 4;
+            matrix[0][2] = 2;
 
-            RandomGenerator generator(1, 10);
-            Task1<int> task(matrix, &generator);
-
+            Task1<int> task(matrix);
             task.solve();
 
-            Assert::AreEqual(2, task.getMatrix()[0][0]);
-            Assert::AreEqual(0, task.getMatrix()[0][1]);
-            Assert::AreEqual(4, task.getMatrix()[0][2]);
+            Assert::AreEqual(0, task.getMatrix()[0][0]);
+            Assert::AreEqual(8, task.getMatrix()[0][1]);
+            Assert::AreEqual(2, task.getMatrix()[0][2]);
         }
 
         // Проверяет вставку нулевых строк перед подходящими строками.
         TEST_METHOD(Task2Test)
         {
-            Matrix<int> matrix(4, 3);
+            Matrix<int> matrix(4, 2);
+            matrix[0][0] = 3; matrix[0][1] = 4;
+            matrix[1][0] = 2; matrix[1][1] = 5;
+            matrix[2][0] = 6; matrix[2][1] = 7;
+            matrix[3][0] = 9; matrix[3][1] = 8;
 
-            matrix[0][0] = 3;
-            matrix[0][1] = 4;
-            matrix[0][2] = 5;
-
-            matrix[1][0] = 2;
-            matrix[1][1] = 6;
-            matrix[1][2] = 7;
-
-            matrix[2][0] = 6;
-            matrix[2][1] = 8;
-            matrix[2][2] = 9;
-
-            matrix[3][0] = 9;
-            matrix[3][1] = 1;
-            matrix[3][2] = 2;
-
-            RandomGenerator generator(1, 10);
-            Task2<int> task(matrix, &generator);
-
+            Task2<int> task(matrix);
             task.solve();
 
-            Assert::AreEqual(
-                static_cast<size_t>(7),
-                task.getMatrix().getRows()
-            );
-            Assert::AreEqual(
-                static_cast<size_t>(3),
-                task.getMatrix().getCols()
-            );
+            const Matrix<int>& result = task.getMatrix();
+            Assert::AreEqual(static_cast<std::size_t>(7), result.getRows());
+            Assert::AreEqual(static_cast<std::size_t>(2), result.getCols());
 
-            // Нулевая строка перед первой исходной строкой.
-            Assert::AreEqual(0, task.getMatrix()[0][0]);
-            Assert::AreEqual(0, task.getMatrix()[0][1]);
-            Assert::AreEqual(0, task.getMatrix()[0][2]);
-
-            // Первая исходная строка.
-            Assert::AreEqual(3, task.getMatrix()[1][0]);
-            Assert::AreEqual(4, task.getMatrix()[1][1]);
-
-            // Вторая исходная строка не требует вставки.
-            Assert::AreEqual(2, task.getMatrix()[2][0]);
-
-            // Нулевая строка перед третьей исходной строкой.
-            Assert::AreEqual(0, task.getMatrix()[3][0]);
-
-            // Третья исходная строка.
-            Assert::AreEqual(6, task.getMatrix()[4][0]);
-
-            // Нулевая строка перед четвертой исходной строкой.
-            Assert::AreEqual(0, task.getMatrix()[5][0]);
-
-            // Четвертая исходная строка.
-            Assert::AreEqual(9, task.getMatrix()[6][0]);
+            Assert::AreEqual(0, result[0][0]);
+            Assert::AreEqual(3, result[1][0]);
+            Assert::AreEqual(2, result[2][0]);
+            Assert::AreEqual(0, result[3][0]);
+            Assert::AreEqual(6, result[4][0]);
+            Assert::AreEqual(0, result[5][0]);
+            Assert::AreEqual(9, result[6][0]);
         }
 
-        // Проверяет Task2, если ни один первый элемент не делится на 3.
+        // Проверяет Task2, если вставка не требуется.
         TEST_METHOD(Task2NoInsertionTest)
         {
-            Matrix<int> matrix(2, 2);
+            Matrix<int> matrix(2, 1);
             matrix[0][0] = 1;
-            matrix[0][1] = 5;
             matrix[1][0] = 2;
-            matrix[1][1] = 6;
 
-            RandomGenerator generator(1, 10);
-            Task2<int> task(matrix, &generator);
-
+            Task2<int> task(matrix);
             task.solve();
 
-            Assert::AreEqual(
-                static_cast<size_t>(2),
-                task.getMatrix().getRows()
-            );
+            Assert::AreEqual(static_cast<std::size_t>(2), task.getMatrix().getRows());
             Assert::AreEqual(1, task.getMatrix()[0][0]);
-            Assert::AreEqual(5, task.getMatrix()[0][1]);
             Assert::AreEqual(2, task.getMatrix()[1][0]);
-            Assert::AreEqual(6, task.getMatrix()[1][1]);
         }
 
         // Проверяет Task2 для пустой матрицы.
         TEST_METHOD(Task2EmptyMatrixTest)
         {
             Matrix<int> matrix;
-            RandomGenerator generator(1, 10);
-            Task2<int> task(matrix, &generator);
-
+            Task2<int> task(matrix);
             task.solve();
-
-            Assert::AreEqual(
-                static_cast<size_t>(0),
-                task.getMatrix().getRows()
-            );
-            Assert::AreEqual(
-                static_cast<size_t>(0),
-                task.getMatrix().getCols()
-            );
+            Assert::AreEqual(static_cast<std::size_t>(0), task.getMatrix().getRows());
         }
 
-        // Проверяет генератор случайных целых чисел.
+        // Проверяет Task2 для матрицы без столбцов.
+        TEST_METHOD(Task2ZeroColsTest)
+        {
+            Matrix<int> matrix(3, 0);
+            Task2<int> task(matrix);
+            task.solve();
+            Assert::AreEqual(static_cast<std::size_t>(3), task.getMatrix().getRows());
+            Assert::AreEqual(static_cast<std::size_t>(0), task.getMatrix().getCols());
+        }
+
+        // Проверяет генерацию случайных чисел в заданном диапазоне.
         TEST_METHOD(RandomGeneratorTest)
         {
             Matrix<int> matrix(10, 10);
             RandomGenerator generator(1, 10);
-
             generator.generate(matrix);
 
-            for (size_t i = 0; i < matrix.getRows(); ++i)
+            for (std::size_t i = 0; i < matrix.getRows(); ++i)
             {
-                for (size_t j = 0; j < matrix.getCols(); ++j)
+                for (std::size_t j = 0; j < matrix.getCols(); ++j)
                 {
-                    Assert::IsTrue(matrix[i][j] >= 1);
-                    Assert::IsTrue(matrix[i][j] <= 10);
+                    Assert::IsTrue(matrix[i][j] >= 1 && matrix[i][j] <= 10);
                 }
             }
         }
 
-        // Проверяет генератор постоянного значения.
-        TEST_METHOD(ConstantGeneratorTest)
+        // Проверяет, что RandomGenerator отклоняет некорректный диапазон.
+        TEST_METHOD(RandomGeneratorInvalidRangeTest)
         {
-            Matrix<int> matrix(2, 3);
-            Constant<int> generator(7);
-
-            generator.generate(matrix);
-
-            for (size_t i = 0; i < matrix.getRows(); ++i)
-            {
-                for (size_t j = 0; j < matrix.getCols(); ++j)
-                {
-                    Assert::AreEqual(7, matrix[i][j]);
-                }
-            }
+            Assert::ExpectException<std::invalid_argument>(
+                []() { RandomGenerator generator(10, 1); }
+            );
         }
 
-        // Проверяет генератор нулевых значений.
-        TEST_METHOD(ZeroGeneratorTest)
+        // Проверяет ввод матрицы с помощью ManualGenerator.
+        TEST_METHOD(ManualGeneratorTest)
         {
-            Matrix<int> matrix(2, 3);
+            Matrix<int> matrix(2, 2);
+            ManualGenerator<int> generator;
+            std::istringstream input("1 2 3 4");
 
-            for (size_t i = 0; i < matrix.getRows(); ++i)
-            {
-                for (size_t j = 0; j < matrix.getCols(); ++j)
-                {
-                    matrix[i][j] = 99;
-                }
-            }
+            Assert::IsTrue(generator.generate(matrix, input));
+            Assert::AreEqual(1, matrix[0][0]);
+            Assert::AreEqual(4, matrix[1][1]);
+        }
 
-            ZeroGenerator<int> generator;
-            generator.generate(matrix);
+        // Проверяет, что ManualGenerator сообщает об ошибке неполного ввода.
+        TEST_METHOD(ManualGeneratorInputFailureTest)
+        {
+            Matrix<int> matrix(1, 2);
+            matrix[0][0] = 7;
+            matrix[0][1] = 8;
 
-            for (size_t i = 0; i < matrix.getRows(); ++i)
-            {
-                for (size_t j = 0; j < matrix.getCols(); ++j)
-                {
-                    Assert::AreEqual(0, matrix[i][j]);
-                }
-            }
+            ManualGenerator<int> generator;
+            std::istringstream input("1");
+
+            Assert::IsFalse(generator.generate(matrix, input));
+            Assert::AreEqual(7, matrix[0][0]);
+            Assert::AreEqual(8, matrix[0][1]);
         }
     };
 }
