@@ -8,44 +8,36 @@
 class RandomGenerator : public Generator<int>
 {
 private:
-    // Минимальное случайное значение.
-    int minValue;
+    // Генератор псевдослучайных чисел.
+    std::mt19937 engine;
 
-    // Максимальное случайное значение.
-    int maxValue;
+    // Равномерное распределение случайных чисел.
+    std::uniform_int_distribution<int> distribution;
 
 public:
-    // Создает генератор случайных чисел.
+    // Создает генератор случайных чисел в заданном диапазоне.
     RandomGenerator(const int minValue, const int maxValue);
 
-    // Заполняет матрицу случайными числами.
-    void generate(Matrix<int>& matrix) override;
+    // Возвращает одно случайное число.
+    int generate() override;
 };
 
 
-// Создает генератор случайных чисел.
+// Создает генератор случайных чисел в заданном диапазоне.
 inline RandomGenerator::RandomGenerator(const int minValue, const int maxValue)
-    : minValue(minValue), maxValue(maxValue)
+    : engine(std::random_device{}()), distribution()
 {
     if (minValue > maxValue)
     {
         throw std::invalid_argument("Минимальное значение больше максимального");
     }
+
+    distribution = std::uniform_int_distribution<int>(minValue, maxValue);
 }
 
 
-// Заполняет матрицу случайными числами.
-inline void RandomGenerator::generate(Matrix<int>& matrix)
+// Возвращает одно случайное число.
+inline int RandomGenerator::generate()
 {
-    std::random_device device;
-    std::mt19937 engine(device());
-    std::uniform_int_distribution<int> distribution(minValue, maxValue);
-
-    for (std::size_t i = 0; i < matrix.getRows(); ++i)
-    {
-        for (std::size_t j = 0; j < matrix.getCols(); ++j)
-        {
-            matrix[i][j] = distribution(engine);
-        }
-    }
+    return distribution(engine);
 }
