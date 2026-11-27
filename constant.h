@@ -6,15 +6,15 @@ template <typename T>
 class Constant : public Generator<T>
 {
 private:
-    // Значение, которым будет заполнена матрица.
+    // Значение, которое будет возвращать генератор.
     T value;
 
 public:
     // Создает генератор с заданным постоянным значением.
     explicit Constant(const T& value);
 
-    // Заполняет матрицу постоянным значением.
-    void generate(Matrix<T>& matrix) override;
+    // Возвращает постоянное значение.
+    T generate() override;
 };
 
 
@@ -26,15 +26,9 @@ Constant<T>::Constant(const T& value)
 }
 
 
-// Заполняет матрицу постоянным значением.
+// Возвращает постоянное значение.
 template <typename T>
-void Constant<T>::generate(Matrix<T>& matrix)
+T Constant<T>::generate()
 {
-    for (std::size_t i = 0; i < matrix.getRows(); ++i)
-    {
-        for (std::size_t j = 0; j < matrix.getCols(); ++j)
-        {
-            matrix[i][j] = value;
-        }
-    }
+    return value;
 }
