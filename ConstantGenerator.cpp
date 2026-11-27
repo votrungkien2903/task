@@ -1,6 +1,6 @@
 #include "ConstantGenerator.h"
 
-ConstantGenerator::ConstantGenerator(int value) : value_(value) {}
+ConstantGenerator::ConstantGenerator(const int value) : value_(value) {}
 
 void ConstantGenerator::Fill(Matrix& matrix) {
     for (std::size_t r = 0; r < matrix.GetRows(); ++r)
