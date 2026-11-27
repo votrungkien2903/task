@@ -191,6 +191,23 @@ namespace MatrixTests
             Assert::AreEqual(5, matrix[0][0]);
         }
 
+        // Проверяет заполнение матрицы генератором.
+        TEST_METHOD(MatrixFillTest)
+        {
+            Matrix<int> matrix(2, 2);
+            Constant<int> generator(6);
+
+            matrix.fill(generator);
+
+            for (std::size_t i = 0; i < matrix.getRows(); ++i)
+            {
+                for (std::size_t j = 0; j < matrix.getCols(); ++j)
+                {
+                    Assert::AreEqual(6, matrix[i][j]);
+                }
+            }
+        }
+
         // Проверяет получение матрицы из базового класса Exercise.
         TEST_METHOD(ExerciseGetMatrixTest)
         {
@@ -322,7 +339,7 @@ namespace MatrixTests
         {
             Matrix<int> matrix(10, 10);
             RandomGenerator generator(1, 10);
-            generator.generate(matrix);
+            matrix.fill(generator);
 
             for (std::size_t i = 0; i < matrix.getRows(); ++i)
             {
@@ -341,47 +358,42 @@ namespace MatrixTests
             );
         }
 
-        // Проверяет ввод матрицы с помощью ManualGenerator.
+        // Проверяет ручное заполнение матрицы.
         TEST_METHOD(ManualGeneratorTest)
         {
             Matrix<int> matrix(2, 2);
-            ManualGenerator<int> generator;
             std::istringstream input("1 2 3 4");
+            ManualGenerator<int> generator(input);
 
-            Assert::IsTrue(generator.generate(matrix, input));
+            matrix.fill(generator);
+
             Assert::AreEqual(1, matrix[0][0]);
             Assert::AreEqual(4, matrix[1][1]);
         }
 
-        // Проверяет, что ManualGenerator не меняет матрицу при ошибке ввода.
+        // Проверяет сохранение матрицы при ошибке ручного ввода.
         TEST_METHOD(ManualGeneratorInputFailureTest)
         {
             Matrix<int> matrix(1, 2);
             matrix[0][0] = 7;
             matrix[0][1] = 8;
 
-            ManualGenerator<int> generator;
             std::istringstream input("1");
+            ManualGenerator<int> generator(input);
 
-            Assert::IsFalse(generator.generate(matrix, input));
+            Assert::ExpectException<std::runtime_error>(
+                [&matrix, &generator]() { matrix.fill(generator); }
+            );
+
             Assert::AreEqual(7, matrix[0][0]);
             Assert::AreEqual(8, matrix[0][1]);
         }
 
-        // Проверяет заполнение матрицы постоянным значением.
+        // Проверяет возврат постоянного значения генератором.
         TEST_METHOD(ConstantGeneratorTest)
         {
-            Matrix<int> matrix(2, 2);
             Constant<int> generator(7);
-            generator.generate(matrix);
-
-            for (std::size_t i = 0; i < matrix.getRows(); ++i)
-            {
-                for (std::size_t j = 0; j < matrix.getCols(); ++j)
-                {
-                    Assert::AreEqual(7, matrix[i][j]);
-                }
-            }
+            Assert::AreEqual(7, generator.generate());
         }
     };
 }
