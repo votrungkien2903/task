@@ -5,7 +5,7 @@
 class Doctor : public MedicalWorker {
 public:
     /// Конструктор: идентификатор, ФИО и специализация.
-    Doctor(int id, std::string name, std::string specialization);
+    Doctor(const int id, const std::string name, const std::string specialization);
 
     /// Возвращает описание врача.
     std::string GetInfo() const override;
