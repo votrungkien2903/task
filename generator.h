@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 
 #include "matrix.h"
 
@@ -9,6 +9,6 @@ public:
     // Виртуальный деструктор базового класса генераторов.
     virtual ~Generator() = default;
 
-    // Заполняет матрицу согласно конкретному алгоритму.
-    virtual void generate(Matrix<T>& matrix) = 0;
+    // Возвращает одно значение, созданное генератором.
+    virtual T generate() = 0;
 };
