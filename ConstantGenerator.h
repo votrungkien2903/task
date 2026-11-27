@@ -5,7 +5,7 @@
 class ConstantGenerator : public Generator {
 public:
     /// Конструктор: значение, которым будут заполнены элементы.
-    explicit ConstantGenerator(int value);
+    explicit ConstantGenerator(const int value);
 
     /// Заполняет матрицу константой.
     void Fill(Matrix& matrix) override;
