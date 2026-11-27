@@ -1,8 +1,7 @@
 #include "Doctor.h"
-#include <utility>
 
-Doctor::Doctor(int id, std::string name, std::string specialization)
-    : MedicalWorker(id, std::move(name)), specialization_(std::move(specialization)) {}
+Doctor::Doctor(const int id, const std::string name, const std::string specialization)
+    : MedicalWorker(id, name), specialization_(specialization) {}
 
 std::string Doctor::GetInfo() const {
     return "Врач [id=" + std::to_string(GetId()) + "] " + GetName() +
