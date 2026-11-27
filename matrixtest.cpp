@@ -358,6 +358,19 @@ namespace MatrixTests
             );
         }
 
+        // Проверяет генератор, который по умолчанию считывает данные с клавиатуры.
+        TEST_METHOD(ManualGeneratorDefaultConstructorTest)
+        {
+            std::istringstream input("42");
+            std::streambuf* previousInput = std::cin.rdbuf(input.rdbuf());
+
+            ManualGenerator<int> generator;
+            const int value = generator.generate();
+
+            std::cin.rdbuf(previousInput);
+            Assert::AreEqual(42, value);
+        }
+
         // Проверяет ручное заполнение матрицы.
         TEST_METHOD(ManualGeneratorTest)
         {
