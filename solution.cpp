@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdexcept>
 
 #include "matrix.h"
 #include "ManualGenerator.h"
@@ -6,14 +7,27 @@
 #include "task1.h"
 #include "task2.h"
 
+enum class FillMethod
+{
+    Random = 1,
+    Manual = 2
+};
+
 int main()
 {
-    const std::size_t rows = 4;
-    const std::size_t cols = 4;
+    std::size_t rows = 0;
+    std::size_t cols = 0;
+
+    std::cout << "Введите количество строк и столбцов матрицы: ";
+
+    if (!(std::cin >> rows >> cols) || rows == 0 || cols == 0)
+    {
+        std::cerr << "Ошибка: размеры матрицы должны быть положительными числами.\n";
+        return 1;
+    }
 
     Matrix<int> matrix(rows, cols);
 
-    // Предлагаем пользователю выбрать способ заполнения матрицы.
     int choice = 0;
     std::cout << "Выберите способ заполнения матрицы:\n";
     std::cout << "1. Случайные числа (Random)\n";
@@ -22,34 +36,46 @@ int main()
 
     if (!(std::cin >> choice))
     {
-        std::cerr << "Ошибка: необходимо ввести число 1 или 2.\n";
+        std::cerr << "Ошибка: введите номер способа заполнения.\n";
         return 1;
     }
 
-    switch (choice)
+    try
     {
-    case 1:
-    {
-        // Заполняем матрицу случайными числами от 1 до 20.
-        RandomGenerator randomGenerator(1, 20);
-        randomGenerator.generate(matrix);
-        break;
-    }
-    case 2:
-    {
-        // Заполняем матрицу значениями, введенными пользователем.
-        ManualGenerator<int> manualGenerator;
-        std::cout << "Введите элементы матрицы " << rows << "x" << cols << ":\n";
-
-        if (!manualGenerator.generate(matrix, std::cin))
+        switch (static_cast<FillMethod>(choice))
         {
-            std::cerr << "Ошибка ввода элементов матрицы.\n";
+        case FillMethod::Random:
+        {
+            int minValue = 0;
+            int maxValue = 0;
+
+            std::cout << "Введите минимальное и максимальное значения: ";
+
+            if (!(std::cin >> minValue >> maxValue))
+            {
+                std::cerr << "Ошибка ввода диапазона случайных чисел.\n";
+                return 1;
+            }
+
+            RandomGenerator generator(minValue, maxValue);
+            matrix.fill(generator);
+            break;
+        }
+        case FillMethod::Manual:
+        {
+            ManualGenerator<int> generator;
+            std::cout << "Введите элементы матрицы (" << rows << "x" << cols << "):\n";
+            matrix.fill(generator);
+            break;
+        }
+        default:
+            std::cerr << "Ошибка: выберите один из предложенных способов.\n";
             return 1;
         }
-        break;
     }
-    default:
-        std::cerr << "Ошибка: выберите 1 или 2.\n";
+    catch (const std::exception& error)
+    {
+        std::cerr << error.what() << '\n';
         return 1;
     }
 
@@ -63,7 +89,7 @@ int main()
     // Выполняем второе задание над другой копией исходной матрицы.
     Task2<int> task2(matrix);
     task2.solve();
-    std::cout << "Результат Task2:\n" << task2.getMatrix() << "\n";
+    std::cout << "Результат Task2:\n" << task2.getMatrix() << '\n';
 
     return 0;
 }
