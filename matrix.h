@@ -10,6 +10,9 @@
 #include <vector>
 
 template <typename T>
+class Generator;
+
+template <typename T>
 class Matrix
 {
 private:
@@ -46,6 +49,9 @@ public:
 
     // Возвращает количество столбцов матрицы.
     std::size_t getCols() const;
+
+    // Заполняет матрицу значениями, полученными от генератора.
+    void fill(Generator<T>& generator);
 
     // Возвращает строку матрицы по индексу.
     std::vector<T>& operator[](const std::size_t index);
@@ -145,6 +151,25 @@ template <typename T>
 std::size_t Matrix<T>::getCols() const
 {
     return cols;
+}
+
+
+// Заполняет матрицу значениями, полученными от генератора.
+template <typename T>
+void Matrix<T>::fill(Generator<T>& generator)
+{
+    // Используем временные данные, чтобы сохранить матрицу при ошибке генерации.
+    std::vector<std::vector<T>> newData(data);
+
+    for (std::size_t i = 0; i < rows; ++i)
+    {
+        for (std::size_t j = 0; j < cols; ++j)
+        {
+            newData[i][j] = generator.generate();
+        }
+    }
+
+    data = std::move(newData);
 }
 
 
