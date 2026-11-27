@@ -4,58 +4,53 @@
 
 #include <iostream>
 #include <istream>
-#include <vector>
+#include <stdexcept>
 
 template <typename T>
 class ManualGenerator : public Generator<T>
 {
-public:
-    // Заполняет матрицу данными из стандартного потока ввода.
-    void generate(Matrix<T>& matrix) override;
+private:
+    // Поток, из которого считываются значения.
+    std::istream* input;
 
-    // Заполняет матрицу данными из указанного потока.
-    bool generate(Matrix<T>& matrix, std::istream& input);
+public:
+    // Создает генератор, считывающий значения с клавиатуры.
+    ManualGenerator();
+
+    // Создает генератор для указанного потока.
+    explicit ManualGenerator(std::istream& input);
+
+    // Считывает и возвращает одно значение.
+    T generate() override;
 };
 
 
-// Заполняет матрицу данными из стандартного потока ввода.
+// Создает генератор, считывающий значения с клавиатуры.
 template <typename T>
-void ManualGenerator<T>::generate(Matrix<T>& matrix)
+ManualGenerator<T>::ManualGenerator()
+    : input(&std::cin)
 {
-    generate(matrix, std::cin);
 }
 
 
-// Заполняет матрицу данными из указанного потока.
+// Создает генератор для указанного потока.
 template <typename T>
-bool ManualGenerator<T>::generate(Matrix<T>& matrix, std::istream& input)
+ManualGenerator<T>::ManualGenerator(std::istream& input)
+    : input(&input)
 {
-    // Сначала считываем данные во временный массив.
-    // Исходная матрица изменится только при полном успешном вводе.
-    std::vector<std::vector<T>> values(
-        matrix.getRows(),
-        std::vector<T>(matrix.getCols())
-    );
+}
 
-    for (std::size_t i = 0; i < matrix.getRows(); ++i)
+
+// Считывает и возвращает одно значение.
+template <typename T>
+T ManualGenerator<T>::generate()
+{
+    T value{};
+
+    if (!(*input >> value))
     {
-        for (std::size_t j = 0; j < matrix.getCols(); ++j)
-        {
-            if (!(input >> values[i][j]))
-            {
-                return false;
-            }
-        }
+        throw std::runtime_error("Ошибка ввода элемента матрицы");
     }
 
-    // Переносим считанные значения в матрицу.
-    for (std::size_t i = 0; i < matrix.getRows(); ++i)
-    {
-        for (std::size_t j = 0; j < matrix.getCols(); ++j)
-        {
-            matrix[i][j] = values[i][j];
-        }
-    }
-
-    return true;
+    return value;
 }
